@@ -1,18 +1,18 @@
 <?php
 
-namespace PlentymarketsAdapter\QueryBus\Handler\PaymentMethod;
+namespace PlentymarketsAdapter\QueryBus\QueryHandler\Shop;
 
-use PlentyConnector\Connector\QueryBus\Handler\QueryHandlerInterface;
-use PlentyConnector\Connector\QueryBus\Query\PaymentMethod\FetchAllPaymentMethodsQuery;
+use PlentyConnector\Connector\QueryBus\QueryHandler\QueryHandlerInterface;
 use PlentyConnector\Connector\QueryBus\Query\QueryInterface;
+use PlentyConnector\Connector\QueryBus\Query\Shop\FetchAllShopsQuery;
 use PlentymarketsAdapter\Client\ClientInterface;
 use PlentymarketsAdapter\PlentymarketsAdapter;
 use PlentymarketsAdapter\ResponseParser\ResponseParserInterface;
 
 /**
- * Class FetchAllPaymentMethodsHandler
+ * Class FetchAllShopsHandler
  */
-class FetchAllPaymentMethodsHandler implements QueryHandlerInterface
+class FetchAllShopsHandler implements QueryHandlerInterface
 {
     /**
      * @var ClientInterface
@@ -25,7 +25,7 @@ class FetchAllPaymentMethodsHandler implements QueryHandlerInterface
     private $responseParser;
 
     /**
-     * FetchAllPaymentMethodsHandler constructor.
+     * FetchAllShopsHandler constructor.
      *
      * @param ClientInterface $client
      * @param ResponseParserInterface $responseParser
@@ -43,7 +43,7 @@ class FetchAllPaymentMethodsHandler implements QueryHandlerInterface
      */
     public function supports(QueryInterface $event)
     {
-        return $event instanceof FetchAllPaymentMethodsQuery &&
+        return $event instanceof FetchAllShopsQuery &&
             $event->getAdapterName() === PlentymarketsAdapter::getName();
     }
 
@@ -52,12 +52,12 @@ class FetchAllPaymentMethodsHandler implements QueryHandlerInterface
      */
     public function handle(QueryInterface $event)
     {
-        $paymentMethods = $this->client->request('GET', 'payments/methods');
+        $shops = $this->client->request('GET', 'webstores');
 
-        $paymentMethods = array_map(function ($paymentMethod) {
-            return $this->responseParser->parse($paymentMethod);
-        }, $paymentMethods);
+        $shops = array_map(function ($shop) {
+            return $this->responseParser->parse($shop);
+        }, $shops);
 
-        return array_filter($paymentMethods);
+        return array_filter($shops);
     }
 }

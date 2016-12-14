@@ -1,19 +1,18 @@
 <?php
 
-namespace PlentymarketsAdapter\QueryBus\Handler\ShippingProfile;
+namespace PlentymarketsAdapter\QueryBus\QueryHandler\PaymentMethod;
 
-use PlentyConnector\Connector\QueryBus\Handler\QueryHandlerInterface;
+use PlentyConnector\Connector\QueryBus\QueryHandler\QueryHandlerInterface;
 use PlentyConnector\Connector\QueryBus\Query\PaymentMethod\FetchAllPaymentMethodsQuery;
 use PlentyConnector\Connector\QueryBus\Query\QueryInterface;
-use PlentyConnector\Connector\QueryBus\Query\ShippingProfile\FetchAllShippingProfilesQuery;
 use PlentymarketsAdapter\Client\ClientInterface;
 use PlentymarketsAdapter\PlentymarketsAdapter;
 use PlentymarketsAdapter\ResponseParser\ResponseParserInterface;
 
 /**
- * Class FetchAllShippingProfilesHandler
+ * Class FetchAllPaymentMethodsHandler
  */
-class FetchAllShippingProfilesHandler implements QueryHandlerInterface
+class FetchAllPaymentMethodsHandler implements QueryHandlerInterface
 {
     /**
      * @var ClientInterface
@@ -26,7 +25,7 @@ class FetchAllShippingProfilesHandler implements QueryHandlerInterface
     private $responseParser;
 
     /**
-     * FetchAllShippingProfilesHandler constructor.
+     * FetchAllPaymentMethodsHandler constructor.
      *
      * @param ClientInterface $client
      * @param ResponseParserInterface $responseParser
@@ -44,7 +43,7 @@ class FetchAllShippingProfilesHandler implements QueryHandlerInterface
      */
     public function supports(QueryInterface $event)
     {
-        return $event instanceof FetchAllShippingProfilesQuery &&
+        return $event instanceof FetchAllPaymentMethodsQuery &&
             $event->getAdapterName() === PlentymarketsAdapter::getName();
     }
 
@@ -53,12 +52,12 @@ class FetchAllShippingProfilesHandler implements QueryHandlerInterface
      */
     public function handle(QueryInterface $event)
     {
-        $shippingProfiles = $this->client->request('GET', 'orders/shipping/presets');
+        $paymentMethods = $this->client->request('GET', 'payments/methods');
 
-        $shippingProfiles = array_map(function ($shippingProfile) {
-            return $this->responseParser->parse($shippingProfile);
-        }, $shippingProfiles);
+        $paymentMethods = array_map(function ($paymentMethod) {
+            return $this->responseParser->parse($paymentMethod);
+        }, $paymentMethods);
 
-        return array_filter($shippingProfiles);
+        return array_filter($paymentMethods);
     }
 }

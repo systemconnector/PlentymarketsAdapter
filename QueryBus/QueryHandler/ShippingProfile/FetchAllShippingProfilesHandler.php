@@ -1,18 +1,19 @@
 <?php
 
-namespace PlentymarketsAdapter\QueryBus\Handler\Shop;
+namespace PlentymarketsAdapter\QueryBus\QueryHandler\ShippingProfile;
 
-use PlentyConnector\Connector\QueryBus\Handler\QueryHandlerInterface;
+use PlentyConnector\Connector\QueryBus\QueryHandler\QueryHandlerInterface;
+use PlentyConnector\Connector\QueryBus\Query\PaymentMethod\FetchAllPaymentMethodsQuery;
 use PlentyConnector\Connector\QueryBus\Query\QueryInterface;
-use PlentyConnector\Connector\QueryBus\Query\Shop\FetchAllShopsQuery;
+use PlentyConnector\Connector\QueryBus\Query\ShippingProfile\FetchAllShippingProfilesQuery;
 use PlentymarketsAdapter\Client\ClientInterface;
 use PlentymarketsAdapter\PlentymarketsAdapter;
 use PlentymarketsAdapter\ResponseParser\ResponseParserInterface;
 
 /**
- * Class FetchAllShopsHandler
+ * Class FetchAllShippingProfilesHandler
  */
-class FetchAllShopsHandler implements QueryHandlerInterface
+class FetchAllShippingProfilesHandler implements QueryHandlerInterface
 {
     /**
      * @var ClientInterface
@@ -25,7 +26,7 @@ class FetchAllShopsHandler implements QueryHandlerInterface
     private $responseParser;
 
     /**
-     * FetchAllShopsHandler constructor.
+     * FetchAllShippingProfilesHandler constructor.
      *
      * @param ClientInterface $client
      * @param ResponseParserInterface $responseParser
@@ -43,7 +44,7 @@ class FetchAllShopsHandler implements QueryHandlerInterface
      */
     public function supports(QueryInterface $event)
     {
-        return $event instanceof FetchAllShopsQuery &&
+        return $event instanceof FetchAllShippingProfilesQuery &&
             $event->getAdapterName() === PlentymarketsAdapter::getName();
     }
 
@@ -52,12 +53,12 @@ class FetchAllShopsHandler implements QueryHandlerInterface
      */
     public function handle(QueryInterface $event)
     {
-        $shops = $this->client->request('GET', 'webstores');
+        $shippingProfiles = $this->client->request('GET', 'orders/shipping/presets');
 
-        $shops = array_map(function ($shop) {
-            return $this->responseParser->parse($shop);
-        }, $shops);
+        $shippingProfiles = array_map(function ($shippingProfile) {
+            return $this->responseParser->parse($shippingProfile);
+        }, $shippingProfiles);
 
-        return array_filter($shops);
+        return array_filter($shippingProfiles);
     }
 }

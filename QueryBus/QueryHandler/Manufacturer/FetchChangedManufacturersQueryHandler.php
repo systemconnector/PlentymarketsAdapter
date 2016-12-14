@@ -1,10 +1,10 @@
 <?php
 
-namespace PlentymarketsAdapter\QueryBus\Handler\Manufacturer;
+namespace PlentymarketsAdapter\QueryBus\QueryHandler\Manufacturer;
 
 use Exception;
-use PlentyConnector\Connector\Config\ConfigServiceInterface;
-use PlentyConnector\Connector\QueryBus\Handler\QueryHandlerInterface;
+use PlentyConnector\Connector\ConfigService\ConfigServiceInterface;
+use PlentyConnector\Connector\QueryBus\QueryHandler\QueryHandlerInterface;
 use PlentyConnector\Connector\QueryBus\Query\Manufacturer\FetchChangedManufacturersQuery;
 use PlentyConnector\Connector\QueryBus\Query\QueryInterface;
 use PlentymarketsAdapter\Client\ClientInterface;

@@ -1,10 +1,10 @@
 <?php
 
-namespace PlentyConnector\Adapter\PlentymarketsAdapter\QueryBus\Handler\Manufacturer;
+namespace PlentymarketsAdapter\QueryBus\QueryHandler\Manufacturer;
 
 use Exception;
-use PlentyConnector\Connector\Identity\IdentityServiceInterface;
-use PlentyConnector\Connector\QueryBus\Handler\QueryHandlerInterface;
+use PlentyConnector\Connector\IdentityService\IdentityServiceInterface;
+use PlentyConnector\Connector\QueryBus\QueryHandler\QueryHandlerInterface;
 use PlentyConnector\Connector\QueryBus\Query\Manufacturer\FetchManufacturerQuery;
 use PlentyConnector\Connector\QueryBus\Query\QueryInterface;
 use PlentyConnector\Connector\TransferObject\Manufacturer\Manufacturer;
