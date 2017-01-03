@@ -1,18 +1,18 @@
 <?php
 
-namespace PlentymarketsAdapter\QueryBus\QueryHandler\CustomerGroup;
+namespace PlentymarketsAdapter\QueryBus\QueryHandler\ShippingProfile;
 
-use PlentyConnector\Connector\QueryBus\Query\CustomerGroup\FetchAllCustomerGroupsQuery;
 use PlentyConnector\Connector\QueryBus\Query\QueryInterface;
+use PlentyConnector\Connector\QueryBus\Query\ShippingProfile\FetchAllShippingProfilesQuery;
 use PlentyConnector\Connector\QueryBus\QueryHandler\QueryHandlerInterface;
 use PlentymarketsAdapter\Client\ClientInterface;
 use PlentymarketsAdapter\PlentymarketsAdapter;
 use PlentymarketsAdapter\ResponseParser\ResponseParserInterface;
 
 /**
- * Class FetchAllCustomerGroupsHandler
+ * Class FetchAllShippingProfilesQueryHandler
  */
-class FetchAllCustomerGroupsHandler implements QueryHandlerInterface
+class FetchAllShippingProfilesQueryHandler implements QueryHandlerInterface
 {
     /**
      * @var ClientInterface
@@ -25,7 +25,7 @@ class FetchAllCustomerGroupsHandler implements QueryHandlerInterface
     private $responseParser;
 
     /**
-     * FetchAllCustomerGroupsHandler constructor.
+     * FetchAllShippingProfilesQueryHandler constructor.
      *
      * @param ClientInterface $client
      * @param ResponseParserInterface $responseParser
@@ -43,7 +43,7 @@ class FetchAllCustomerGroupsHandler implements QueryHandlerInterface
      */
     public function supports(QueryInterface $event)
     {
-        return $event instanceof FetchAllCustomerGroupsQuery &&
+        return $event instanceof FetchAllShippingProfilesQuery &&
             $event->getAdapterName() === PlentymarketsAdapter::getName();
     }
 
@@ -52,13 +52,10 @@ class FetchAllCustomerGroupsHandler implements QueryHandlerInterface
      */
     public function handle(QueryInterface $event)
     {
-        $customerGroups = [];
-        $response = $this->client->request('GET', 'accounts/contacts/classes');
+        $shippingProfiles = array_map(function ($shippingProfile) {
+            return $this->responseParser->parse($shippingProfile);
+        }, $this->client->request('GET', 'orders/shipping/presets'));
 
-        foreach ($response as $id => $name) {
-            $customerGroups[] = $this->responseParser->parse(['id' => $id, 'name' => $name]);
-        }
-
-        return array_filter($customerGroups);
+        return array_filter($shippingProfiles);
     }
 }

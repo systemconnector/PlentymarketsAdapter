@@ -1,18 +1,18 @@
 <?php
 
-namespace PlentymarketsAdapter\QueryBus\QueryHandler\Currency;
+namespace PlentymarketsAdapter\QueryBus\QueryHandler\Unit;
 
-use PlentyConnector\Connector\QueryBus\Query\Currency\FetchAllCurrenciesQuery;
 use PlentyConnector\Connector\QueryBus\Query\QueryInterface;
+use PlentyConnector\Connector\QueryBus\Query\Unit\FetchAllUnitsQuery;
 use PlentyConnector\Connector\QueryBus\QueryHandler\QueryHandlerInterface;
 use PlentymarketsAdapter\Client\ClientInterface;
 use PlentymarketsAdapter\PlentymarketsAdapter;
 use PlentymarketsAdapter\ResponseParser\ResponseParserInterface;
 
 /**
- * Class FetchAllCurrenciesHandler
+ * Class FetchAllUnitsQueryHandler
  */
-class FetchAllCurrenciesHandler implements QueryHandlerInterface
+class FetchAllUnitsQueryHandler implements QueryHandlerInterface
 {
     /**
      * @var ClientInterface
@@ -25,7 +25,7 @@ class FetchAllCurrenciesHandler implements QueryHandlerInterface
     private $responseParser;
 
     /**
-     * FetchAllCurrenciesHandler constructor.
+     * FetchAllUnitsQueryHandler constructor.
      *
      * @param ClientInterface $client
      * @param ResponseParserInterface $responseParser
@@ -43,7 +43,7 @@ class FetchAllCurrenciesHandler implements QueryHandlerInterface
      */
     public function supports(QueryInterface $event)
     {
-        return $event instanceof FetchAllCurrenciesQuery &&
+        return $event instanceof FetchAllUnitsQuery &&
             $event->getAdapterName() === PlentymarketsAdapter::getName();
     }
 
@@ -52,10 +52,18 @@ class FetchAllCurrenciesHandler implements QueryHandlerInterface
      */
     public function handle(QueryInterface $event)
     {
-        $currencies = array_map(function ($currency) {
-            return $this->responseParser->parse($currency);
-        }, $this->client->request('GET', 'orders/currencies'));
+        $units = array_map(function ($unit) {
+            $names = $this->client->request('GET', 'items/units/' . $unit['id'] . '/names');
 
-        return array_filter($currencies);
+            if (!array_key_exists('name', $names)) {
+                $names = array_shift($names);
+            }
+
+            $unit['name'] = $names['name'];
+
+            return $this->responseParser->parse($unit);
+        }, $this->client->request('GET', 'items/units'));
+
+        return array_filter($units);
     }
 }

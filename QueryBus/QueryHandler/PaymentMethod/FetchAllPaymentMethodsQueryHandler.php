@@ -1,18 +1,18 @@
 <?php
 
-namespace PlentymarketsAdapter\QueryBus\QueryHandler\VatRate;
+namespace PlentymarketsAdapter\QueryBus\QueryHandler\PaymentMethod;
 
+use PlentyConnector\Connector\QueryBus\Query\PaymentMethod\FetchAllPaymentMethodsQuery;
 use PlentyConnector\Connector\QueryBus\Query\QueryInterface;
-use PlentyConnector\Connector\QueryBus\Query\VatRate\FetchAllVatRatesQuery;
 use PlentyConnector\Connector\QueryBus\QueryHandler\QueryHandlerInterface;
 use PlentymarketsAdapter\Client\ClientInterface;
 use PlentymarketsAdapter\PlentymarketsAdapter;
 use PlentymarketsAdapter\ResponseParser\ResponseParserInterface;
 
 /**
- * Class FetchAllVatRatesHandler
+ * Class FetchAllPaymentMethodsQueryHandler
  */
-class FetchAllVatRatesHandler implements QueryHandlerInterface
+class FetchAllPaymentMethodsQueryHandler implements QueryHandlerInterface
 {
     /**
      * @var ClientInterface
@@ -25,7 +25,7 @@ class FetchAllVatRatesHandler implements QueryHandlerInterface
     private $responseParser;
 
     /**
-     * FetchAllVatRatesHandler constructor.
+     * FetchAllPaymentMethodsQueryHandler constructor.
      *
      * @param ClientInterface $client
      * @param ResponseParserInterface $responseParser
@@ -43,7 +43,7 @@ class FetchAllVatRatesHandler implements QueryHandlerInterface
      */
     public function supports(QueryInterface $event)
     {
-        return $event instanceof FetchAllVatRatesQuery &&
+        return $event instanceof FetchAllPaymentMethodsQuery &&
             $event->getAdapterName() === PlentymarketsAdapter::getName();
     }
 
@@ -52,19 +52,10 @@ class FetchAllVatRatesHandler implements QueryHandlerInterface
      */
     public function handle(QueryInterface $event)
     {
-        $vatRates = [];
-        $vatRatesByCountry = $this->client->request('GET', 'vat');
+        $paymentMethods = array_map(function ($paymentMethod) {
+            return $this->responseParser->parse($paymentMethod);
+        }, $this->client->request('GET', 'payments/methods'));
 
-        foreach ($vatRatesByCountry as $countryVat) {
-            foreach ($countryVat['vatRates'] as $rate) {
-                $vatRates[$rate['id']] = $rate;
-            }
-        }
-
-        $vatRates = array_map(function($vatRate) {
-            return $this->responseParser->parse($vatRate);
-        }, $vatRates);
-
-        return array_filter($vatRates);
+        return array_filter($paymentMethods);
     }
 }
